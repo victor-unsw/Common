@@ -29,10 +29,11 @@ int main() {
     };
 
 
+
     unsigned char result = 0;
     for (int i = 0; (i < 10); ++i) {
         printf("[%d]\n",(i+1));
-        result = parser(valid_emails[i]);
+        parser(valid_emails[i],&result);
         showErrors(result);
         printf("\n");
     }
