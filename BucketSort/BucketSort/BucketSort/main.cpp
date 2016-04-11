@@ -7,8 +7,9 @@
 //
 
 #include <iostream>
-#include <cmath>
 #include <fstream>
+#include <string>
+#include <cmath>
 
 #include "BucketSort.hpp"
 #include "BucketSort.cpp"
@@ -27,16 +28,14 @@ struct min_max{
     int max;
 };
 
-min_max getMinMax(string array){
+min_max getMinMax(char* array,int l){
     int max = 0;
     int min = INT_MAX;
-    
-    for (auto it=array.begin(); it!=array.end(); it++) {
-        if (*it > max) {
-            max = *it;
-        }
-        if (*it < min) {
-            min = *it;
+    for (int i=0; i<l; i++) {
+        if (array[i] > max)
+            max = array[i];
+        if (array[i] < min){
+            min =  array[i];
         }
     }
     min_max r;
@@ -46,30 +45,56 @@ min_max getMinMax(string array){
 }
 
 int main(int argc, const char * argv[]) {
-    string array;
     
-    char buffer[1000];
-    ifstream input("/Users/victorchoudhary/Documents/Email.txt");
+    bool write = false;
+    
+    ifstream input("/Users/victorchoudhary/Documents/DOC0.txt");
     ofstream output("/Users/victorchoudhary/Documents/Sort.txt");
+    clock_t tt = clock();
     
-    while (input >> buffer)
-        //array.append("\n");
-        array.append(buffer);
-    cout << array.size() << endl;
-    min_max r = getMinMax(array);
-    cout << "min : " << r.min << "\nmax : " << r.max << endl;
-    char * pt = new char[array.size()];
-    for (int i=0; i<array.size(); i++) {
-        pt[i] = array[i];
+    streampos begin,end;
+    begin   = input.tellg();    input.seekg(0,ios::end);
+    end     = input.tellg();    input.seekg(0,ios::beg);
+    long size = end-begin;
+    cout << "file size : " << size/1000 << " KB"<< endl;
+    
+    char* buffer = new char[size];
+    
+    clock_t it = clock();
+    int c = 0;
+    int i = 0;
+    while ((c = input.get())!=EOF) {
+        if (isspace(c))
+            while (isspace(c = input.get()));
+        buffer[i++] = c;
     }
+    it = clock() - it;
+    cout << "[reading time] \t: ";printf("%-5.3f sec.\n",double(it)/CLOCKS_PER_SEC);
+    input.close();
+    
+    min_max mm = getMinMax(buffer,int(size));
     
     bucket_sort<char> b;
-    b.bsort(pt, int(array.size()), r.min, r.max, 0.3);
+    clock_t st = clock();
+    b.bsort(buffer, int(size), mm.min, mm.max,1);
+    st = clock() - st;
+    cout << "[sorting time] \t: ";printf("%-5.3f sec.\n",double(st)/CLOCKS_PER_SEC);
     
-    for (int i=0; i<array.size(); i++) {
-        cout << pt[i];
-        output <<pt[i];
+
+    if (write) {
+        clock_t ot = clock();
+        for (int i=0; i<size; i++)
+            output <<buffer[i];
+        ot = clock() - ot;
+        cout << "[writing time] \t: ";printf("%-5.3f sec.\n",double(ot)/CLOCKS_PER_SEC);
     }
     
+    delete [] buffer;
+
+    tt = clock() - tt;
+    cout << "[total time] \t: ";printf("%-5.3f sec.\n",double(tt)/CLOCKS_PER_SEC);
+    //cin.get();
     return 0;
 }
+
+

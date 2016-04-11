@@ -10,8 +10,8 @@
 #define BucketSort_hpp
 
 #include <iostream>
-#include <list>
 #include <algorithm>
+#include <vector>
 #include <cmath>
 
 template <typename t>
